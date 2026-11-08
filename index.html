@@ -21,6 +21,7 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{background:var(--ink);color:var(--paper)}
 body{font-family:var(--f-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))}
 a{color:var(--paper-2);text-decoration:none}a:hover{color:var(--paper)}
@@ -216,7 +217,13 @@ input[type=range][disabled]{cursor:not-allowed;opacity:.5}
 .dlg-btns button{flex:1;min-height:48px;border-radius:12px;font-size:15px;cursor:pointer}
 .dlg-keep{background:var(--brass);border:0;color:var(--brass-ink);font-weight:700}
 .dlg-off{background:transparent;border:1px solid var(--line-2);color:var(--paper-2)}
-@media (max-width:640px){.vol{display:none}.group-name{width:100%}.badge{display:none}
+@media (max-width:640px){
+  /* 모바일: 브랜드 바로 아래 턴테이블, 메뉴·날짜는 숨김 */
+  header nav,.ctx{display:none}
+  header{border-bottom:0;padding-bottom:0}
+  .wrap{gap:40px}
+  .hero{margin-top:-36px;padding-block:0}
+  .vol{display:none}.group-name{width:100%}.badge{display:none}
   .player-in{padding-block:10px;gap:6px 12px}.ctrls{order:1}.side{order:2;margin-left:auto}.track{order:3;flex-basis:100%}
   #wakeText{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.wake{width:44px;justify-content:center;padding:0}
   body{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))}}
@@ -226,7 +233,7 @@ input[type=range][disabled]{cursor:not-allowed;opacity:.5}
 <div class="wrap" id="top">
   <header>
     <div class="brand"><b>Adagio</b><span>지금, 이 순간의 클래식</span></div>
-    <nav aria-label="주 메뉴"><a href="#listen">지금 듣는 곡</a><a href="#moods" id="navMoods">순간 바꾸기</a><a href="#era">시대</a><a href="#basics">상식 노트</a></nav>
+    <nav aria-label="주 메뉴"><a href="#listen">지금 듣는 곡</a><a href="#moods" id="navMoods">상황 고르기</a><a href="#era">시대</a><a href="#basics">상식 노트</a></nav>
     <div class="ctx" id="ctx">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
       <span id="ctxText">오늘</span>
@@ -250,13 +257,13 @@ input[type=range][disabled]{cursor:not-allowed;opacity:.5}
       <p class="reason" id="reason"></p>
       <div class="live"><span class="live-at" id="liveAt">처음</span><p id="liveText"></p></div>
       <button class="mood-btn" id="moodBtn" type="button" aria-expanded="false" aria-controls="moods">
-        <span>지금 순간 <b id="moodNow">아침</b></span><span class="mood-go">순간 바꾸기<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></span>
+        <span>지금 상황 <b id="moodNow">아침</b></span><span class="mood-go">다른 상황 고르기<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></span>
       </button>
     </div>
   </section>
 
   <section class="moods" id="moods" aria-labelledby="moods-h" hidden>
-    <div class="moods-head"><h2 id="moods-h">지금 어떤 순간인가요?</h2><button class="close" id="moodClose" type="button" aria-label="닫기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></div>
+    <div class="moods-head"><h2 id="moods-h">지금 어떤 상황인가요?</h2><button class="close" id="moodClose" type="button" aria-label="닫기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></div>
     <div id="groups"></div>
   </section>
 
