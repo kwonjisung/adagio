@@ -222,7 +222,11 @@ input[type=range][disabled]{cursor:not-allowed;opacity:.5}
   header nav,.ctx{display:none}
   header{border-bottom:0;padding-bottom:0}
   .wrap{gap:40px}
-  .hero{margin-top:-36px;padding-block:0}
+  .hero{margin-top:-24px;padding-block:0;display:flex;flex-direction:column;gap:14px}
+  .hero-text{display:contents}
+  .hero-text > *{order:3}
+  .mood-btn{order:1;margin-top:8px}
+  .t-stage{order:2}
   .vol{display:none}.group-name{width:100%}.badge{display:none}
   .player-in{padding-block:10px;gap:6px 12px}.ctrls{order:1}.side{order:2;margin-left:auto}.track{order:3;flex-basis:100%}
   #wakeText{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.wake{width:44px;justify-content:center;padding:0}
