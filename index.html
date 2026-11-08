@@ -208,6 +208,14 @@ input[type=range][disabled]{cursor:not-allowed;opacity:.5}
 .wake{display:flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;border-radius:8px;border:1px solid var(--line-2);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;white-space:nowrap}
 .wake[aria-pressed="true"]{border-color:var(--brass);color:var(--brass)}
 .wake.on{background:rgba(201,164,106,.12)}
+.dlg-back{position:fixed;inset:0;z-index:50;background:rgba(8,7,6,.72);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.dlg{width:min(400px,100%);background:var(--hall);border:1px solid var(--line-2);border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:12px;box-shadow:0 30px 60px -20px rgba(0,0,0,.8)}
+.dlg h2{font-family:var(--f-display);font-weight:500;font-size:19px;line-height:1.45;word-break:keep-all}
+.dlg p{margin:0;font-size:14px;line-height:1.7;color:var(--paper-2);word-break:keep-all}
+.dlg-btns{display:flex;gap:10px;margin-top:8px}
+.dlg-btns button{flex:1;min-height:48px;border-radius:12px;font-size:15px;cursor:pointer}
+.dlg-keep{background:var(--brass);border:0;color:var(--brass-ink);font-weight:700}
+.dlg-off{background:transparent;border:1px solid var(--line-2);color:var(--paper-2)}
 @media (max-width:640px){.vol{display:none}.group-name{width:100%}.badge{display:none}
   .player-in{padding-block:10px;gap:6px 12px}.ctrls{order:1}.side{order:2;margin-left:auto}.track{order:3;flex-basis:100%}
   #wakeText{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.wake{width:44px;justify-content:center;padding:0}
@@ -319,6 +327,13 @@ input[type=range][disabled]{cursor:not-allowed;opacity:.5}
   </div>
 </div>
 <audio id="audio" preload="none"></audio>
+<div class="dlg-back" id="wakeDlg" hidden>
+  <div class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="wakeDlgT" aria-describedby="wakeDlgD">
+    <h2 id="wakeDlgT">화면 켜짐 유지 기능을 비활성화하시겠습니까?</h2>
+    <p id="wakeDlgD">끄면 재생 중에도 화면이 자동으로 꺼질 수 있고, 휴대폰에 따라 음악도 함께 멈출 수 있어요.</p>
+    <div class="dlg-btns"><button type="button" class="dlg-keep" id="wakeKeep">계속 켜 두기</button><button type="button" class="dlg-off" id="wakeOff">비활성화</button></div>
+  </div>
+</div>
 
 <script>
 (function(){
@@ -557,13 +572,20 @@ $('next').onclick=function(){select((idx+1)%T.length,true)};
 $('prev').onclick=function(){if(audio.currentTime>5){audio.currentTime=0;return}select((idx-1+T.length)%T.length,true)};
 // ---- 화면 켜짐 유지 (Wake Lock) ----
 var wakeWanted=true,wakeLock=null;
-try{if(localStorage.getItem('adagio-wake')==='0')wakeWanted=false}catch(e){}
+// 항상 켜진 상태로 시작 (끄더라도 다음에 열면 다시 켜짐)
+try{localStorage.removeItem('adagio-wake')}catch(e){}
 function wakeUI(){var b=$('wake');b.setAttribute('aria-pressed',wakeWanted?'true':'false');b.classList.toggle('on',!!wakeLock);
   $('wakeText').textContent=!('wakeLock' in navigator)?'화면 유지 미지원':wakeWanted?(wakeLock?'화면 켜짐 유지 중':'화면 켜짐 유지'):'화면 자동 꺼짐'}
 function acquireWake(){if(!wakeWanted||audio.paused||wakeLock||!('wakeLock' in navigator)||document.visibilityState!=='visible'){wakeUI();return}
   navigator.wakeLock.request('screen').then(function(l){wakeLock=l;l.addEventListener('release',function(){wakeLock=null;wakeUI()});wakeUI()}).catch(function(){wakeLock=null;wakeUI()})}
 function releaseWake(){if(wakeLock){wakeLock.release().catch(function(){});wakeLock=null}wakeUI()}
-$('wake').onclick=function(){wakeWanted=!wakeWanted;try{localStorage.setItem('adagio-wake',wakeWanted?'1':'0')}catch(e){}if(wakeWanted)acquireWake();else releaseWake()};
+function openWakeDlg(){var d=$('wakeDlg');d.hidden=false;$('wakeKeep').focus()}
+function closeWakeDlg(){$('wakeDlg').hidden=true;$('wake').focus()}
+$('wake').onclick=function(){if(wakeWanted){openWakeDlg()}else{wakeWanted=true;acquireWake()}};
+$('wakeKeep').onclick=closeWakeDlg;
+$('wakeOff').onclick=function(){wakeWanted=false;releaseWake();closeWakeDlg()};
+$('wakeDlg').addEventListener('click',function(e){if(e.target===this)closeWakeDlg()});
+$('wakeDlg').addEventListener('keydown',function(e){if(e.key==='Escape')closeWakeDlg();if(e.key==='Tab'){var a=$('wakeKeep'),b=$('wakeOff');if(e.shiftKey&&document.activeElement===a){e.preventDefault();b.focus()}else if(!e.shiftKey&&document.activeElement===b){e.preventDefault();a.focus()}}});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')acquireWake()});
 // ---- 잠금화면·백그라운드 재생 (Media Session) ----
 var MS='mediaSession' in navigator?navigator.mediaSession:null;
