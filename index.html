@@ -135,6 +135,7 @@ nav{display:flex;gap:24px;font-size:15px}
 .chip:hover{border-color:var(--brass);color:var(--paper)}
 .chip[aria-pressed="true"]{background:var(--brass);border-color:var(--brass);color:var(--brass-ink);font-weight:700}
 .chip .now{font-size:11px;margin-left:6px;opacity:.75}
+.chip .em{margin-right:6px;font-size:16px;line-height:1}
 
 /* cards */
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:20px}
@@ -463,6 +464,7 @@ var CREDIT={
  meditate:{p:'Kimiko Ishizaka (피아노)',l:'CC0',u:'https://archive.org/details/OpenGoldbergVariations'}
 };
 var GROUPS=['시간','날씨','기분','활동'];
+var EMOJI={morning:'🌅',noon:'☀️',evening:'🌆',night:'🌙',sunny:'🌤️',cloudy:'☁️',rain:'🌧️',snow:'❄️',hungry:'🍽️',angry:'😤',blue:'💙',focus:'🎯',lego:'🧱',reading:'📖',cooking:'🍳',cleaning:'🧹',workout:'🏃',walk:'🚶',drive:'🚗',coffee:'☕',drawing:'🎨',meditate:'🧘'};
 var ERAS=[{n:'바로크',a:1600,b:1750},{n:'고전주의',a:1750,b:1820},{n:'낭만주의',a:1820,b:1900},{n:'인상주의 · 근대',a:1890,b:1930}];
 var $=function(id){return document.getElementById(id)};
 var audio=$('audio'), ready={}, idx=0, curPoint=-1;
@@ -482,7 +484,7 @@ function buildChips(){
     var row=el('div','group');row.setAttribute('role','group');row.setAttribute('aria-label',g);
     row.appendChild(el('span','group-name',g));
     T.forEach(function(t,i){if(t.group!==g)return;
-      var b=el('button','chip',t.label);b.type='button';b.id='chip-'+t.id;b.setAttribute('aria-pressed',i===idx?'true':'false');
+      var b=el('button','chip');var em=el('span','em',EMOJI[t.id]||'');em.setAttribute('aria-hidden','true');b.appendChild(em);b.appendChild(document.createTextNode(t.label));b.type='button';b.id='chip-'+t.id;b.setAttribute('aria-pressed',i===idx?'true':'false');
       if(t.id===autoId){var s=el('span','now','지금');b.appendChild(s)}
       b.onclick=function(){select(i,true);setMoods(false);try{$('listen').scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}};row.appendChild(b)});
     box.appendChild(row)});
