@@ -92,7 +92,7 @@ nav{display:flex;gap:24px;font-size:15px}
 .t-rim{position:absolute;inset:-4px;border-radius:50%;background:#2B2B2B;transform:translateZ(-8px);box-shadow:0 0 0 1px #3A342C}
 .t-rim2{position:absolute;inset:-4px;border-radius:50%;background:#1F1F1F;transform:translateZ(-4px)}
 .t-disc{position:absolute;inset:0;border-radius:50%;transform:translateZ(2px);background-color:#151515;background-image:repeating-radial-gradient(circle at 50% 50%,#141414 0 1.6px,#181818 1.6px 3.2px);background-size:100% 100%;box-shadow:0 0 0 1px #000 inset;transform-style:flat;will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
-.t-disc.tex{background-image:var(--groove)}
+.t-disc canvas{position:absolute;inset:0;width:100%;height:100%;display:block;border-radius:50%}
 .t-label{position:absolute;left:50%;top:50%;width:62px;height:62px;margin:-31px 0 0 -31px;border-radius:50%;background:var(--brass);display:flex;align-items:center;justify-content:center;flex-direction:column;color:var(--brass-ink)}
 .t-label b{font-family:var(--f-latin);font-style:italic;font-weight:500;font-size:13px;line-height:1}
 .t-label i{font-style:normal;font-size:7px;letter-spacing:.08em;margin-top:3px;opacity:.8;white-space:nowrap}
@@ -100,7 +100,6 @@ nav{display:flex;gap:24px;font-size:15px}
 .t-mark{position:absolute;left:50%;top:6%;width:2px;height:18%;margin-left:-1px;background:linear-gradient(transparent,rgba(201,164,106,.35),transparent)}
 .t-sheen{position:absolute;inset:0;border-radius:50%;transform:translateZ(4px);pointer-events:none;background:conic-gradient(from 20deg,rgba(255,255,255,0) 0deg,rgba(255,255,255,.07) 30deg,rgba(255,255,255,0) 70deg,rgba(255,255,255,0) 180deg,rgba(255,255,255,.05) 210deg,rgba(255,255,255,0) 250deg);-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .t-spindle{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px;border-radius:50%;background:#D8D2C4;transform:translateZ(8px)}
-.playing .t-disc{animation:tspin 1.8s linear infinite}
 @keyframes tspin{from{transform:translateZ(2px) rotate(0deg)}to{transform:translateZ(2px) rotate(360deg)}}
 .t-arm{position:absolute;right:22px;top:26px;width:40px;height:40px;transform-style:preserve-3d;transform:translateZ(10px)}
 .t-base{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 40% 35%,#4A4036,#221C16);box-shadow:0 0 0 1px #4A3F33}
@@ -252,8 +251,7 @@ input[type=range][disabled]{cursor:not-allowed;opacity:.5}
       <div class="t-floor"></div>
       <div class="t-tt" id="tTT"><div class="t-plinth"><div class="t-side t-f"></div><div class="t-side t-r"></div>
         <div class="t-platter"><div class="t-rim"></div><div class="t-rim2"></div>
-          <div class="t-rec"><div class="t-disc"><div class="t-mark"></div><div class="t-label"><b>Adagio</b><i id="ttLabel">33⅓</i></div></div>
-          <div class="t-sheen"></div></div><div class="t-spindle"></div></div>
+          <div class="t-rec"><div class="t-disc"><canvas id="tCanvas" width="360" height="360" aria-hidden="true"></canvas><span id="ttLabel" hidden>33⅓</span></div></div><div class="t-spindle"></div></div>
         <div class="t-arm"><div class="t-base"></div><div class="t-pivot"><div class="t-shadow"></div><div class="t-weight"></div><div class="t-rod"></div><div class="t-head"></div></div></div>
         <div class="t-led"></div><div class="t-knob"></div></div></div>
     </div>
@@ -617,12 +615,50 @@ audio.addEventListener('pause',function(){setIcon();msState();if(!audio.ended)re
 audio.addEventListener('loadedmetadata',msState);
 audio.addEventListener('ended',function(){msState()});
 wakeUI();
-// ---- 음반 홈 텍스처: 미리 그린 이미지로 바꿔 회전 중 깜박임(플리커) 방지 ----
-(function(){try{var N=512,c=document.createElement('canvas');c.width=c.height=N;var g=c.getContext('2d'),r=N/2;
-  g.fillStyle='#151515';g.beginPath();g.arc(r,r,r,0,Math.PI*2);g.fill();
-  for(var rad=r*0.36;rad<r*0.97;rad+=2.2){g.strokeStyle='rgba(255,255,255,'+(0.018+0.018*Math.abs(Math.sin(rad*0.37)))+')';g.lineWidth=1;g.beginPath();g.arc(r,r,rad,0,Math.PI*2);g.stroke()}
-  [0.52,0.7,0.86].forEach(function(f){g.strokeStyle='rgba(0,0,0,.55)';g.lineWidth=2.5;g.beginPath();g.arc(r,r,r*f,0,Math.PI*2);g.stroke()});
-  var d=document.querySelector('.t-disc');d.style.setProperty('--groove','url('+c.toDataURL('image/png')+')');d.classList.add('tex')}catch(e){}})();
+// ---- 음반: 캔버스 안에서 직접 회전시켜 그림 ----
+// (CSS 3D 안에서 요소를 계속 회전시키면 iPad(WebKit)에서 깜박임이 생겨서,
+//  3D 위치는 고정해 두고 그림만 매 프레임 다시 그림)
+(function(){
+  var cv=$('tCanvas');if(!cv||!cv.getContext)return;
+  var dpr=Math.min(2,window.devicePixelRatio||1),N=Math.round(180*dpr*1.4);cv.width=cv.height=N;
+  var g=cv.getContext('2d'),R=N/2;
+  // 홈 텍스처는 한 번만 그려 둠
+  var tex=document.createElement('canvas');tex.width=tex.height=N;var t=tex.getContext('2d');
+  t.fillStyle='#151515';t.beginPath();t.arc(R,R,R,0,Math.PI*2);t.fill();
+  for(var rad=R*0.36;rad<R*0.97;rad+=N/240){t.strokeStyle='rgba(255,255,255,'+(0.02+0.02*Math.abs(Math.sin(rad*0.21)))+')';t.lineWidth=N/500;t.beginPath();t.arc(R,R,rad,0,Math.PI*2);t.stroke()}
+  [0.52,0.7,0.86].forEach(function(f){t.strokeStyle='rgba(0,0,0,.6)';t.lineWidth=N/180;t.beginPath();t.arc(R,R,R*f,0,Math.PI*2);t.stroke()});
+  var grd=t.createLinearGradient(R,R*0.08,R,R*0.42);grd.addColorStop(0,'rgba(201,164,106,0)');grd.addColorStop(.5,'rgba(201,164,106,.35)');grd.addColorStop(1,'rgba(201,164,106,0)');
+  t.fillStyle=grd;t.fillRect(R-N/360,R*0.08,N/180,R*0.34);
+  var angle=0,last=0,lastLabel='',dirty=true,reduce=false;
+  try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+  function draw(label){
+    g.clearRect(0,0,N,N);
+    g.save();g.translate(R,R);g.rotate(angle);g.translate(-R,-R);
+    g.drawImage(tex,0,0);
+    // 라벨
+    var lr=R*0.345;g.fillStyle='#C9A46A';g.beginPath();g.arc(R,R,lr,0,Math.PI*2);g.fill();
+    g.fillStyle='#14120F';g.textAlign='center';g.textBaseline='middle';
+    g.font='italic 500 '+Math.round(N*0.072)+'px "Cormorant Garamond", "Times New Roman", serif';g.fillText('Adagio',R,R-N*0.03);
+    g.globalAlpha=.8;g.font='500 '+Math.round(N*0.036)+'px "Noto Sans KR", system-ui, sans-serif';g.fillText(label,R,R+N*0.045);g.globalAlpha=1;
+    g.fillStyle='#0d0d0d';g.beginPath();g.arc(R,R,N*0.014,0,Math.PI*2);g.fill();
+    g.restore();
+    // 회전하지 않는 빛 반사
+    var sh=g.createConicGradient?g.createConicGradient(0.35,R,R):null;
+    if(sh){sh.addColorStop(0,'rgba(255,255,255,0)');sh.addColorStop(.08,'rgba(255,255,255,.07)');sh.addColorStop(.2,'rgba(255,255,255,0)');sh.addColorStop(.5,'rgba(255,255,255,0)');sh.addColorStop(.58,'rgba(255,255,255,.05)');sh.addColorStop(.7,'rgba(255,255,255,0)');sh.addColorStop(1,'rgba(255,255,255,0)');
+      g.fillStyle=sh;g.beginPath();g.arc(R,R,R,0,Math.PI*2);g.fill()}
+  }
+  function frame(ts){
+    var label=$('ttLabel').textContent||'';
+    var spinning=document.body.classList.contains('playing')&&!$('tStage').classList.contains('t-busy')&&!reduce;
+    if(spinning&&last){angle=(angle+(ts-last)/1800*Math.PI*2)%(Math.PI*2);dirty=true}
+    last=ts;
+    if(label!==lastLabel){lastLabel=label;dirty=true}
+    if(dirty){draw(label);dirty=false}
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  try{document.fonts&&document.fonts.ready.then(function(){dirty=true})}catch(e){}
+})();
 // ---- 턴테이블 기울이기 (마우스·손가락 방향으로) ----
 (function(){var st=$('tStage'),tt=$('tTT');
   function tilt(x,y){var r=st.getBoundingClientRect(),dx=Math.max(-.5,Math.min(.5,(x-r.left)/r.width-.5)),dy=Math.max(-.5,Math.min(.5,(y-r.top)/r.height-.5));
