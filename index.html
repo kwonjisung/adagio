@@ -26,8 +26,51 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
-.ver{align-self:center;margin-left:2px;padding:1px 6px;border:1px solid var(--line-2);border-radius:6px;font-size:10px;letter-spacing:.04em;color:var(--muted);opacity:.7;font-variant-numeric:tabular-nums}
-.ver-foot{display:block;margin-top:8px;font-size:11px;opacity:.7;font-variant-numeric:tabular-nums}
+.ver{align-self:center;margin-left:2px;padding:1px 6px;border:1px solid var(--line-2);border-radius:6px;background:transparent;font:10px/1.5 var(--f-body);letter-spacing:.04em;color:var(--muted);opacity:.7;font-variant-numeric:tabular-nums;cursor:pointer;transition:opacity .2s,border-color .2s}
+.ver:hover,.ver:focus-visible{opacity:1;border-color:var(--brass);color:var(--brass)}
+.ver-foot{display:block;margin-top:8px;padding:0;border:0;background:transparent;font:11px var(--f-body);color:var(--muted);opacity:.7;cursor:pointer;font-variant-numeric:tabular-nums;min-height:32px}
+.ver-foot:hover{opacity:1;color:var(--brass)}
+/* ===== 정보 화면 (업데이트 기록 · 작동 원리) ===== */
+.info-back{position:fixed;inset:0;z-index:60;background:rgba(8,7,6,.78);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.info{width:min(920px,100%);max-height:100%;overflow:auto;background:var(--hall);border:1px solid var(--line-2);border-radius:20px;box-shadow:0 40px 80px -30px rgba(0,0,0,.9);display:flex;flex-direction:column}
+.info-top{position:sticky;top:0;z-index:2;background:var(--hall);display:flex;flex-direction:column;gap:14px;padding:22px 24px 0;border-bottom:1px solid var(--line)}
+.info-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.info-head h2{font-family:var(--f-display);font-weight:500;font-size:22px}
+.info-head p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.info-tabs{display:flex;gap:4px}
+.info-tab{min-height:44px;padding:0 16px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--muted);font-size:15px;cursor:pointer}
+.info-tab[aria-selected="true"]{color:var(--paper);border-color:var(--brass)}
+.info-body{padding:24px}
+/* history */
+.hist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.hist>li{display:grid;grid-template-columns:76px 20px minmax(0,1fr);gap:0 14px;position:relative}
+.hist .v{font-family:var(--f-latin);font-size:20px;color:var(--paper-2);padding-top:1px;font-variant-numeric:tabular-nums}
+.hist .v small{display:block;font-family:var(--f-body);font-size:11px;color:var(--muted)}
+.hist .rail{position:relative}
+.hist .rail::before{content:"";position:absolute;left:9px;top:0;bottom:0;width:2px;background:var(--line-2)}
+.hist>li:first-child .rail::before{top:10px}.hist>li:last-child .rail::before{bottom:auto;height:10px}
+.hist .rail i{position:absolute;left:4px;top:8px;width:12px;height:12px;border-radius:50%;background:var(--ink);border:2px solid var(--line-2)}
+.hist>li.cur .rail i{background:var(--brass);border-color:var(--brass);box-shadow:0 0 10px rgba(201,164,106,.6)}
+.hist>li.cur .v{color:var(--brass)}
+.hist .c{padding-bottom:22px;min-width:0}
+.hist h3{font-family:var(--f-display);font-weight:500;font-size:17px;margin-bottom:6px}
+.hist ul{margin:0;padding-left:18px;font-size:14px;line-height:1.7;color:var(--paper-2);word-break:keep-all}
+.hist .ask{margin:8px 0 0;font-size:13px;color:var(--muted);word-break:keep-all}
+.hist .ask::before{content:"요청 · ";color:var(--brass)}
+/* how it works */
+.flow{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr) 28px minmax(0,1fr);align-items:stretch;gap:0}
+.lane{display:flex;flex-direction:column;gap:10px;min-width:0}
+.lane-h{font-size:12px;letter-spacing:.2em;color:var(--brass);padding-bottom:2px}
+.node{padding:12px 14px;border-radius:12px;background:var(--ink);border:1px solid var(--line);min-width:0}
+.node b{display:block;font-size:14px;font-weight:700;color:var(--paper);margin-bottom:3px;word-break:keep-all}
+.node span{display:block;font-size:12.5px;line-height:1.6;color:var(--muted);word-break:keep-all}
+.node.key{border-color:var(--brass-2);background:linear-gradient(135deg,rgba(201,164,106,.12),rgba(201,164,106,0) 70%)}
+.arrow{display:flex;align-items:center;justify-content:center;color:var(--brass);opacity:.8}
+.rules{margin-top:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:14px}
+.rule{padding:16px;border-radius:14px;border:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.rule h3{font-family:var(--f-display);font-weight:500;font-size:16px}
+.rule p{margin:0;font-size:13.5px;line-height:1.7;color:var(--paper-2);word-break:keep-all}
+@media (max-width:760px){.flow{grid-template-columns:1fr}.arrow{height:30px}.arrow svg{transform:rotate(90deg)}.hist>li{grid-template-columns:58px 20px minmax(0,1fr)}.info-body{padding:20px 18px}.info-top{padding:18px 18px 0}}
 [hidden]{display:none!important}
 html,body{background:var(--ink);color:var(--paper)}
 body{font-family:var(--f-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))}
@@ -283,7 +326,7 @@ body.stage .stage-ver{display:inline-block;margin-left:4px}
 
 <div class="wrap" id="top">
   <header>
-    <div class="brand"><b>Adagio</b><span>지금, 이 순간의 클래식</span><small class="ver" id="ver" title="2026.11.11 업데이트 · iPad 감상 화면">v1.5</small></div>
+    <div class="brand"><b>Adagio</b><span>지금, 이 순간의 클래식</span><button class="ver" id="ver" type="button" aria-haspopup="dialog" title="업데이트 기록과 작동 원리 보기">v1.6</button></div>
     <nav aria-label="주 메뉴"><a href="#listen">지금 듣는 곡</a><a href="#moods" id="navMoods">상황 고르기</a><a href="#era">시대</a><a href="#basics">상식 노트</a></nav>
     <div class="ctx" id="ctx">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
@@ -310,7 +353,7 @@ body.stage .stage-ver{display:inline-block;margin-left:4px}
       <div class="rec" id="rec">
         <button class="rec-toggle" id="recBtn" type="button" aria-pressed="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"></path><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"></path></svg>
-          <span class="rec-name">추천 모드</span><span class="ver stage-ver">v1.5</span><span class="rec-state" id="recState">켜짐</span>
+          <span class="rec-name">추천 모드</span><span class="ver stage-ver" data-info role="button" tabindex="0">v1.6</span><span class="rec-state" id="recState">켜짐</span>
         </button>
         <div class="rec-why"><span id="recWhy">지금 시간에 맞춰 고르는 중이에요</span><button class="rec-loc" id="recLoc" type="button">내 위치 날씨로</button></div>
       </div>
@@ -368,9 +411,62 @@ body.stage .stage-ver{display:inline-block;margin-left:4px}
     <div class="queue" id="queue"></div>
   </section>
 
-  <footer>작곡은 모두 저작권 보호 기간이 끝난 퍼블릭 도메인 작품이에요. 연주 음원은 퍼블릭 도메인·CC0 또는 출처 표시 조건의 크리에이티브 커먼즈(CC BY, CC BY-SA, CC BY-ND)로 공개된 녹음만 사용하며, 곡마다 연주자와 라이선스를 '곡 정보'에 표시해요. 음원 출처: Internet Archive (Musopen, Open Goldberg Variations 외). 음원 파일은 원본을 그대로 쓰거나 형식만 mp3로 바꿨어요.<span class="ver-foot">Adagio v1.5 · 2026.11.11</span></footer>
+  <footer>작곡은 모두 저작권 보호 기간이 끝난 퍼블릭 도메인 작품이에요. 연주 음원은 퍼블릭 도메인·CC0 또는 출처 표시 조건의 크리에이티브 커먼즈(CC BY, CC BY-SA, CC BY-ND)로 공개된 녹음만 사용하며, 곡마다 연주자와 라이선스를 '곡 정보'에 표시해요. 음원 출처: Internet Archive (Musopen, Open Goldberg Variations 외). 음원 파일은 원본을 그대로 쓰거나 형식만 mp3로 바꿨어요.<button class="ver-foot" type="button" data-info>Adagio v1.6 · 2026.11.11 · 업데이트 기록 보기</button></footer>
 </div>
 
+<div class="info-back" id="infoDlg" hidden>
+  <div class="info" role="dialog" aria-modal="true" aria-labelledby="infoT">
+    <div class="info-top">
+      <div class="info-head"><div><h2 id="infoT">Adagio v1.6</h2><p>어떻게 만들어졌고, 어떻게 움직이는지</p></div>
+        <button class="close" id="infoClose" type="button" aria-label="닫기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></div>
+      <div class="info-tabs" role="tablist">
+        <button class="info-tab" role="tab" id="itH" aria-selected="true" aria-controls="ipH">업데이트 기록</button>
+        <button class="info-tab" role="tab" id="itW" aria-selected="false" aria-controls="ipW">작동 원리</button>
+      </div>
+    </div>
+    <div class="info-body">
+      <section id="ipH" role="tabpanel" aria-labelledby="itH">
+        <ol class="hist" reversed>
+          <li class="cur"><div class="v">v1.6<small>11.11</small></div><div class="rail"><i></i></div><div class="c"><h3>버전 정보 화면</h3><ul><li>버전 표시를 누르면 업데이트 기록과 작동 원리를 볼 수 있어요</li></ul><p class="ask">버전을 누르면 과정과 히스토리, 간단한 작동 원리를 보여 줘</p></div></li>
+          <li><div class="v">v1.5<small>11.09–11</small></div><div class="rail"><i></i></div><div class="c"><h3>추천 모드 · iPad 감상 화면</h3><ul><li>지금 시간과 날씨(서울·내 위치)로 곡을 골라 이어서 재생</li><li>턴테이블을 누르면 재생 / 멈춤</li><li>iPad·태블릿에서 재생하면 전체화면 감상 화면</li><li>업데이트를 확인할 수 있는 작은 버전 표시</li></ul><p class="ask">시간·날씨에 맞게 추천 플레이 / iPad는 턴테이블만 눌러도 재생, 전체화면</p></div></li>
+          <li><div class="v">v1.4<small>11.08–09</small></div><div class="rail"><i></i></div><div class="c"><h3>모바일 다듬기 · 깜박임 해결</h3><ul><li>모바일: 상황 버튼을 턴테이블 위로, 날짜·메뉴 숨김</li><li>'순간 바꾸기' → '상황 고르기'로 이름 변경, 상황마다 이모지</li><li>화면 켜짐 유지를 기본으로, 끌 때 한 번 더 확인</li><li>iPad에서 음반이 깜박이던 문제를 캔버스 회전으로 해결</li></ul><p class="ask">모바일에서 턴테이블이 바로 보이게 / 아이패드에서 깜박임</p></div></li>
+          <li><div class="v">v1.3<small>11.08</small></div><div class="rail"><i></i></div><div class="c"><h3>3D 턴테이블 · 라이너 노트 레이아웃</h3><ul><li>3D 턴테이블 시안 3종 중 C안(손으로 기울이기) 적용</li><li>곡을 바꾸면 음반을 갈아 끼우는 모션</li><li>레이아웃 시안 5종 중 ③ 라이너 노트로 재구성</li><li>제목이 단어 중간에서 끊기지 않게, 넘치면 글자 크기 자동 조절</li><li>GitHub 저장소(kwonjisung/adagio)에 올림</li></ul><p class="ask">턴테이블에 음반이 돌아가는 3D 이미지 / 너무 나열식인 레이아웃 정리</p></div></li>
+          <li><div class="v">v1.2<small>11.08</small></div><div class="rail"><i></i></div><div class="c"><h3>모바일 재생 · 활동 상황 10개</h3><ul><li>재생 중 화면 꺼짐 방지, 잠금화면에서 재생 조작</li><li>레고·독서·요리·청소·운동·산책·운전·커피·그림·명상 추가 (총 22곡)</li></ul><p class="ask">화면이 꺼지면 음악이 꺼짐 / 레고할 때, 독서할 때 등 10개 추가</p></div></li>
+          <li><div class="v">v1.1<small>11.07–08</small></div><div class="rail"><i></i></div><div class="c"><h3>공개 음원 연결</h3><ul><li>인터넷 아카이브의 퍼블릭 도메인·CC 녹음 12곡 연결</li><li>무손실 원본은 192kbps mp3로 변환</li><li>곡마다 연주자와 라이선스 표기</li></ul><p class="ask">음질이 너무 나쁘지 않은 클래식으로</p></div></li>
+          <li><div class="v">v1.0<small>11.07</small></div><div class="rail"><i></i></div><div class="c"><h3>첫 사이트</h3><ul><li>시간·날씨·기분 12개 상황별 추천곡</li><li>곡 정보, 들으며 귀 기울일 곳, 상식, 시대 타임라인, 상식 노트</li><li>하단 고정 플레이어</li></ul><p class="ask">시안 이대로 만들어 보자</p></div></li>
+          <li><div class="v">v0.1<small>11.07</small></div><div class="rail"><i></i></div><div class="c"><h3>디자인 시안</h3><ul><li>데스크톱·모바일 화면 시안, 어두운 잉크색 + 황동색 톤</li></ul><p class="ask">클래식을 들으며 정보를 보는 사이트, 유치하지 않게</p></div></li>
+        </ol>
+      </section>
+      <section id="ipW" role="tabpanel" aria-labelledby="itW" hidden>
+        <div class="flow" aria-label="작동 흐름: 입력에서 판단을 거쳐 재생과 화면으로">
+          <div class="lane"><span class="lane-h">① 입력</span>
+            <div class="node"><b>🕒 지금 시간</b><span>기기 시계 → 아침·점심·저녁·밤</span></div>
+            <div class="node"><b>🌦️ 지금 날씨</b><span>Open-Meteo에서 30분마다 · 서울 또는 내 위치</span></div>
+            <div class="node"><b>👆 내가 고른 상황</b><span>22개 중 하나를 고르면 추천 모드가 꺼져요</span></div>
+            <div class="node"><b>📱 기기 종류</b><span>Mac이라 알리는데 터치가 되면 iPad</span></div>
+          </div>
+          <div class="arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></div>
+          <div class="lane"><span class="lane-h">② 판단</span>
+            <div class="node key"><b>✨ 추천 엔진</b><span>비·눈이면 날씨 곡 먼저 → 시간 곡 → 그 시간에 어울리는 활동 곡. 한 바퀴 돌면 그때의 시간·날씨로 다시 고름</span></div>
+            <div class="node"><b>📚 곡 데이터 22개</b><span>제목·작곡가·시대·형식, 추천 이유, 들을 포인트 3개, 상식·용어, 연주자·라이선스</span></div>
+          </div>
+          <div class="arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></div>
+          <div class="lane"><span class="lane-h">③ 재생 · 화면</span>
+            <div class="node key"><b>🎵 오디오</b><span>사이트에 함께 올린 mp3를 재생 · 끝나면 다음 추천 곡</span></div>
+            <div class="node"><b>💿 턴테이블</b><span>재생 상태에 맞춰 바늘이 오르내리고, 음반은 캔버스 안에서 회전</span></div>
+            <div class="node"><b>👂 지금 들을 포인트</b><span>재생 위치(%)가 구간을 넘으면 해당 설명을 밝힘</span></div>
+            <div class="node"><b>🔒 화면 켜짐 · 잠금화면</b><span>Wake Lock으로 화면 유지, Media Session으로 잠금화면 조작</span></div>
+          </div>
+        </div>
+        <div class="rules">
+          <div class="rule"><h3>음원은 왜 공개 녹음만?</h3><p>곡(악보)은 저작권이 끝났어도 연주 녹음에는 따로 권리가 있어요. 그래서 퍼블릭 도메인·CC 라이선스 녹음만 쓰고 곡마다 출처를 표시해요.</p></div>
+          <div class="rule"><h3>음반은 왜 캔버스로 그릴까?</h3><p>3D 공간에서 음반 조각을 계속 돌리면 iPad에서 깜박였어요. 그래서 3D 위치는 고정하고, 그림만 매 프레임 새로 그려 돌아가는 것처럼 보여요.</p></div>
+          <div class="rule"><h3>iPad는 어떻게 알아볼까?</h3><p>iPad는 Chrome이든 Safari든 자신을 Mac이라고 알려요. 터치가 되는 'Mac'이면 iPad로 보고, 재생할 때 전체화면 감상 화면을 열어요.</p></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
 <button class="stage-exit" id="stageExit" type="button" aria-label="감상 화면 나가기" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"></path></svg><span>나가기</span></button>
 <div class="player" id="player" role="region" aria-label="플레이어">
   <div class="player-in">
@@ -855,7 +951,18 @@ $('pp').onclick=function(){var was=audio.paused;ppOrig.call(this);if(was)onUserP
 $('stageExit').onclick=exitStage;
 function fsChange(){var f=!!fsEl();if(wasFull&&!f)exitStage();wasFull=f}
 document.addEventListener('fullscreenchange',fsChange);document.addEventListener('webkitfullscreenchange',fsChange);
-document.addEventListener('keydown',function(e){if(e.key==='Escape'&&document.body.classList.contains('stage')&&$('wakeDlg').hidden)exitStage()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&document.body.classList.contains('stage')&&$('wakeDlg').hidden&&$('infoDlg').hidden)exitStage()});
+// ===== 정보 화면 (버전 표시를 누르면) =====
+var infoOpener=null;
+function openInfo(e){infoOpener=(e&&e.currentTarget)||null;$('infoDlg').hidden=false;$('infoClose').focus()}
+function closeInfo(){$('infoDlg').hidden=true;if(infoOpener&&infoOpener.focus)infoOpener.focus()}
+$('ver').onclick=openInfo;
+document.querySelectorAll('[data-info]').forEach(function(b){b.addEventListener('click',openInfo);b.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();openInfo(e)}})});
+$('infoClose').onclick=closeInfo;
+$('infoDlg').addEventListener('click',function(e){if(e.target===this)closeInfo()});
+$('infoDlg').addEventListener('keydown',function(e){if(e.key==='Escape'){e.stopPropagation();closeInfo()}});
+function infoTab(w){var h=w==='H';$('itH').setAttribute('aria-selected',h?'true':'false');$('itW').setAttribute('aria-selected',h?'false':'true');$('ipH').hidden=!h;$('ipW').hidden=h}
+$('itH').onclick=function(){infoTab('H')};$('itW').onclick=function(){infoTab('W')};
 buildChips();select(idx,false);
 REC.queue=buildRecQueue();REC.pos=Math.max(0,REC.queue.indexOf(idx));updateRecUI();fetchWeather();
 })();
