@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Adagio">
+<meta name="theme-color" content="#14120F">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -245,6 +250,30 @@ input[type=range][disabled]{cursor:not-allowed;opacity:.5}
   .player-in{padding-block:10px;gap:6px 12px}.ctrls{order:1}.side{order:2;margin-left:auto}.track{order:3;flex-basis:100%}
   #wakeText{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.wake{width:44px;justify-content:center;padding:0}
   body{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))}}
+/* ===== 턴테이블 눌러서 재생 ===== */
+.t-stage{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.t-hint{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);padding:6px 14px;border-radius:999px;background:rgba(20,18,15,.75);border:1px solid var(--line-2);font-size:12px;color:var(--paper-2);white-space:nowrap;pointer-events:none;transition:opacity .4s}
+.playing .t-hint{opacity:0}
+/* ===== 감상 화면 (iPad·태블릿에서 재생하면) ===== */
+body.stage{overflow:hidden;padding-bottom:0}
+body.stage header,body.stage .moods,body.stage .tier,body.stage .tier2,body.stage footer,body.stage .mood-btn,body.stage .reason,body.stage .rec-loc{display:none!important}
+body.stage .hero{position:fixed;inset:0;z-index:30;margin:0;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:center;gap:0 clamp(24px,4vw,64px);
+  padding:max(24px,env(safe-area-inset-top,0px)) max(40px,env(safe-area-inset-right,0px)) calc(110px + env(safe-area-inset-bottom,0px)) max(40px,env(safe-area-inset-left,0px));
+  background:radial-gradient(70% 90% at 30% 45%,#2A231C 0%,var(--ink) 70%);animation:stageIn .6s ease both}
+@keyframes stageIn{from{opacity:0}to{opacity:1}}
+body.stage .t-stage{height:min(82vh,700px);order:0}
+body.stage .t-tt{--ts:1.75}
+body.stage .hero-text{gap:18px;max-width:560px}
+body.stage .hero h1{font-size:clamp(34px,4.2vw,56px)}
+body.stage .rec{padding:10px 14px;border-color:var(--line)}
+body.stage .rec-toggle{min-height:36px;font-size:14px}
+body.stage .player{background:transparent;border-top:0;-webkit-backdrop-filter:none;backdrop-filter:none;z-index:31}
+body.stage .player-in{max-width:none;padding-inline:max(40px,env(safe-area-inset-left,0px)) max(40px,env(safe-area-inset-right,0px))}
+body.stage .badge{display:none}
+.stage-exit{position:fixed;z-index:32;top:max(16px,env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));display:flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line-2);background:rgba(20,18,15,.7);color:var(--paper-2);font-size:13px;cursor:pointer;opacity:.55;transition:opacity .3s}
+.stage-exit:hover,.stage-exit:focus-visible{opacity:1}
+@media (max-height:720px){body.stage .t-tt{--ts:1.5}body.stage .t-stage{height:76vh}}
+@media (orientation:portrait){body.stage .hero{grid-template-columns:1fr;align-content:center;gap:12px}body.stage .t-stage{height:48vh}body.stage .t-tt{--ts:1.4}}
 @media (prefers-reduced-motion:reduce){.playing .t-disc{animation:none}*{transition:none!important}}
 </style>
 
@@ -261,6 +290,7 @@ input[type=range][disabled]{cursor:not-allowed;opacity:.5}
   <section class="hero" id="listen">
     <div class="t-stage" id="tStage" role="img" aria-label="음반이 올려진 턴테이블. 재생하면 음반이 돌고 바늘이 내려와요.">
       <div class="t-floor"></div>
+      <span class="t-hint" id="tHint" aria-hidden="true">턴테이블을 누르면 재생돼요</span>
       <div class="t-tt" id="tTT"><div class="t-plinth"><div class="t-side t-f"></div><div class="t-side t-r"></div>
         <div class="t-platter"><div class="t-rim"></div><div class="t-rim2"></div>
           <div class="t-rec"><div class="t-disc"><canvas id="tCanvas" width="360" height="360" aria-hidden="true"></canvas><span id="ttLabel" hidden>33⅓</span></div></div><div class="t-spindle"></div></div>
@@ -337,6 +367,7 @@ input[type=range][disabled]{cursor:not-allowed;opacity:.5}
   <footer>작곡은 모두 저작권 보호 기간이 끝난 퍼블릭 도메인 작품이에요. 연주 음원은 퍼블릭 도메인·CC0 또는 출처 표시 조건의 크리에이티브 커먼즈(CC BY, CC BY-SA, CC BY-ND)로 공개된 녹음만 사용하며, 곡마다 연주자와 라이선스를 '곡 정보'에 표시해요. 음원 출처: Internet Archive (Musopen, Open Goldberg Variations 외). 음원 파일은 원본을 그대로 쓰거나 형식만 mp3로 바꿨어요.</footer>
 </div>
 
+<button class="stage-exit" id="stageExit" type="button" aria-label="감상 화면 나가기" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"></path></svg><span>나가기</span></button>
 <div class="player" id="player" role="region" aria-label="플레이어">
   <div class="player-in">
     <div class="ctrls">
@@ -639,7 +670,7 @@ wakeUI();
 //  3D 위치는 고정해 두고 그림만 매 프레임 다시 그림)
 (function(){
   var cv=$('tCanvas');if(!cv||!cv.getContext)return;
-  var dpr=Math.min(2,window.devicePixelRatio||1),N=Math.round(180*dpr*1.4);cv.width=cv.height=N;
+  var dpr=Math.min(2,window.devicePixelRatio||1),N=Math.min(1024,Math.round(180*dpr*2.2));cv.width=cv.height=N;
   var g=cv.getContext('2d'),R=N/2;
   // 홈 텍스처는 한 번만 그려 둠
   var tex=document.createElement('canvas');tex.width=tex.height=N;var t=tex.getContext('2d');
@@ -793,6 +824,34 @@ function setMoods(open){var m=$('moods');m.hidden=!open;$('moodBtn').setAttribut
 $('moodBtn').onclick=function(){var open=$('moods').hidden;setMoods(open);if(open){try{$('moods').scrollIntoView({behavior:'smooth',block:'nearest'})}catch(e){}}};
 $('moodClose').onclick=function(){setMoods(false);$('moodBtn').focus()};
 $('navMoods').onclick=function(e){e.preventDefault();setMoods(true);try{$('moods').scrollIntoView({behavior:'smooth',block:'start'})}catch(x){}};
+// ===== 태블릿 감지 · 턴테이블 눌러 재생 · 감상 화면 + 전체화면 =====
+function isTablet(){try{
+  var ua=navigator.userAgent||'',touch=navigator.maxTouchPoints>1;
+  var iPad=/iPad/.test(ua)||(/Macintosh/.test(ua)&&touch); // iPadOS는 자신을 Mac이라고 알림
+  var bigTouch=matchMedia('(pointer: coarse)').matches&&Math.min(screen.width,screen.height)>=700;
+  return iPad||bigTouch}catch(e){return false}}
+var TABLET=isTablet();document.documentElement.classList.toggle('tablet',TABLET);
+function fsEl(){return document.fullscreenElement||document.webkitFullscreenElement}
+function goFull(){var el=document.documentElement,f=el.requestFullscreen||el.webkitRequestFullscreen;
+  if(!f||fsEl())return;try{var p=f.call(el);if(p&&p.catch)p.catch(function(){})}catch(e){}}
+function leaveFull(){var f=document.exitFullscreen||document.webkitExitFullscreen;if(f&&fsEl()){try{var p=f.call(document);if(p&&p.catch)p.catch(function(){})}catch(e){}}}
+var wasFull=false;
+function enterStage(){if(document.body.classList.contains('stage'))return;document.body.classList.add('stage');$('stageExit').hidden=false;setMoods(false);setTimeout(fitTitle,50)}
+function exitStage(){document.body.classList.remove('stage');$('stageExit').hidden=true;leaveFull();setTimeout(fitTitle,50)}
+function onUserPlay(){if(TABLET){enterStage();goFull()}}
+var ppOrig=$('pp').onclick;
+$('pp').onclick=function(){var was=audio.paused;ppOrig.call(this);if(was)onUserPlay()};
+// 턴테이블을 누르면 재생/일시정지 (살짝 기울이려고 끈 건 무시)
+(function(){var st=$('tStage'),sx=0,sy=0;
+  st.addEventListener('pointerdown',function(e){sx=e.clientX;sy=e.clientY});
+  st.addEventListener('click',function(e){if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>14)return;$('pp').onclick()});
+  st.setAttribute('tabindex','0');st.setAttribute('role','button');st.setAttribute('aria-label','턴테이블. 누르면 재생하거나 멈춰요');
+  st.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();$('pp').onclick()}});
+})();
+$('stageExit').onclick=exitStage;
+function fsChange(){var f=!!fsEl();if(wasFull&&!f)exitStage();wasFull=f}
+document.addEventListener('fullscreenchange',fsChange);document.addEventListener('webkitfullscreenchange',fsChange);
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&document.body.classList.contains('stage')&&$('wakeDlg').hidden)exitStage()});
 buildChips();select(idx,false);
 REC.queue=buildRecQueue();REC.pos=Math.max(0,REC.queue.indexOf(idx));updateRecUI();fetchWeather();
 })();
