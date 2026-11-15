@@ -1,0 +1,6 @@
+{
+  "rule": "주간 자동 업데이트. approved_count 가 approval_needed 미만이면 제안 후 사용자 확인을 받고 반영, 이상이면 스스로 판단해 반영한다.",
+  "approval_needed": 3,
+  "approved_count": 0,
+  "history": []
+}
